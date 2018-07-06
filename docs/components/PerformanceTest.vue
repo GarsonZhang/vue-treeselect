@@ -1,9 +1,7 @@
 <template>
-<div>
-  
-  <treeselect :options="gzoptions" v-model="value" unknownText="(没有找到)" :multiple="false" />
-  <treeselect :options="options" :multiple="true" />
-
+  <div>
+    <treeselect :options="gzoptions" v-model="value" unknownText="(没有找到)" :multiple="false" />
+    <treeselect :options="options" :multiple="true" />
   </div>
 </template>
 
