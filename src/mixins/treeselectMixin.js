@@ -590,6 +590,14 @@ export default {
       type: String,
       default: 'id',
     },
+    unknownText: {
+      type: String,
+      default: '(unKnown)',
+    },
+    defaultNullValue: {
+      type: String | Number,
+      default: '',
+    },
   },
 
   data() {
@@ -661,6 +669,7 @@ export default {
     internalValue() {
       let internalValue
 
+      // debugger // eslint-disable-line
       // istanbul ignore else
       if (this.single || this.flat || this.disableBranchNodes || this.valueConsistsOf === ALL) {
         internalValue = this.forest.selectedNodeIds.slice()
@@ -694,7 +703,7 @@ export default {
       } else if (this.sortValueBy === INDEX) {
         internalValue.sort((a, b) => sortValueByIndex(this.getNode(a), this.getNode(b)))
       }
-
+      // debugger // eslint-disable-line
       return internalValue
     },
     /**
@@ -702,6 +711,7 @@ export default {
      * @type {boolean}
      */
     hasValue() {
+      // debugger // eslint-disable-line
       return this.internalValue.length > 0
     },
     /**
@@ -709,6 +719,7 @@ export default {
      * @type {boolean}
      */
     hasUndisabledValue() {
+      // debugger // eslint-disable-line
       return this.hasValue && this.internalValue.map(this.getNode).some(node => !node.isDisabled)
     },
     /**
@@ -767,6 +778,7 @@ export default {
      * @type {boolean}
      */
     shouldShowX() {
+      // debugger // eslint-disable-line
       return this.clearable && !this.disabled && this.hasUndisabledValue
     },
     shouldShowControlArrow() {
@@ -906,7 +918,7 @@ export default {
   methods: {
     verifyProps() {
       warning(
-        () => this.id == null,
+        () => this.isNullValue(this.id),
         () => '`id` prop is deprecated. Use `instanceId` instead.'
       )
 
@@ -972,24 +984,24 @@ export default {
 
     getNode(nodeId) {
       warning(
-        () => nodeId != null,
+        () => !this.isNullValue(nodeId),
         () => `Invalid node id: ${nodeId}`
       )
 
-      if (nodeId == null) return null
-
+      if (this.isNullValue(nodeId)) return null
       return nodeId in this.forest.nodeMap
         ? this.forest.nodeMap[nodeId]
         : this.createFallbackNode(nodeId)
     },
-
+    isNullValue(value) {
+      return value == null || value === this.defaultNullValue
+    },
     createFallbackNode(id) {
       // In case there is a default selected node that is not loaded into the tree yet,
       // we create a fallback node to keep the component working.
       // When the real data is loaded, we'll override this fake node.
-
       const raw = this.extractNodeFromValue(id)
-      const label = this.enhancedNormalizer(raw).label || `${id} (unknown)`
+      const label = this.enhancedNormalizer(raw).label || `${id} ${this.unknownText}`
       const fallbackNode = {
         id,
         label,
@@ -1010,7 +1022,7 @@ export default {
     },
 
     extractCheckedNodeIdsFromValue() {
-      if (this.value == null) return []
+      if (this.isNullValue(this.value)) return []
 
       if (this.valueFormat === 'id') {
         return this.multiple
@@ -1176,8 +1188,17 @@ export default {
       if (this.disabled) return
 
       const isClickedOnValueContainer = this.$refs.value.$el.contains(evt.target)
-      if (isClickedOnValueContainer && !this.menu.isOpen && (this.openOnClick || this.trigger.isFocused)) {
-        this.openMenu()
+      // if (isClickedOnValueContainer && !this.menu.isOpen && (this.openOnClick || this.trigger.isFocused)) {
+      //   this.openMenu()
+      // }
+      if (this.menu.isOpen) {
+        if (isClickedOnValueContainer && (this.openOnClick || this.trigger.isFocused)) {
+          this.closeMenu()
+        }
+      } else {
+        if (isClickedOnValueContainer && (this.openOnClick || this.trigger.isFocused)) {
+          this.openMenu()
+        }
       }
 
       if (this._blurOnSelect) {

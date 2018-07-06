@@ -1,6 +1,6 @@
 module.exports = {
   root: true,
-  extends: [ 'riophae/vue' ],
+  extends: ['riophae/vue'],
   globals: {
     PKG_VERSION: true,
   },
@@ -24,5 +24,8 @@ module.exports = {
     'no-warning-comments': 0,
     'no-undefined': 0,
     'prefer-destructuring': 0,
+    // 统一换行符，"\n" unix(for LF) and "\r\n" for windows(CRLF)，默认unix
+    // off或0: 禁用规则
+    'linebreak-style': 'off'
   },
 }
